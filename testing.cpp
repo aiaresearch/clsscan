@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <cmath>  
+#include "iostream" 
 
 using namespace cv;
 using namespace std;
@@ -12,7 +13,7 @@ int main() {
     int b = 5;
     int c = 6;
 
-    Mat img = imread("test.png");
+    Mat img = imread("scan.png");
     //img = img(Rect(0, 0, img.cols, top));
     pyrDown(img, img);
     pyrDown(img, img);
@@ -89,42 +90,52 @@ int main() {
         }
     }
 
+    pair<int, Point> rightup = make_pair(INT_MAX, Point(-1, -1));
+    for (size_t i = 0; i < xx.size(); i++) {
+        int distance_squared = (xx[i]-img_open.cols) * (xx[i]-img_open.cols) + yy[i] * yy[i];
+        if (distance_squared < rightup.first) {
+            rightup = make_pair(distance_squared, Point(xx[i], yy[i]));
+        }
+    }
+
     Point leftup_point = leftup.second;
     Point rightdown_point = rightdown.second;
     Point leftdown_point = leftdown.second;
-    Point rightup_point = leftdown_point-leftup_point+rightdown_point;
+    //Point rightup_point = leftdown_point-leftup_point+rightdown_point;
+    Point rightup_point =rightup.second;
 
     Mat img_cropped = img_open(Rect(leftup_point, rightdown_point));
-    vector<vector<Point>> docCnt ;
-    cout << docCnt << endl;
+    vector<Point> docCnt={leftup_point,rightdown_point,leftdown_point,rightup_point };
+    //cout<<docCnt << endl;
 
     // Mark points with circles
     vector<Point> points;
     for (size_t i = 0; i < docCnt.size(); ++i) {
-        Point peak = docCnt[i][0];
-        circle(im, peak, 10, Scalar(0, 0, 255), 2);
+        Point peak = docCnt[i];
+        circle(img, peak, 10, Scalar(0, 0, 255), 2);
         points.push_back(peak);
     }
-    cout << points << endl;
-    imshow("im_point", im);
+    cv::pyrDown(img,img);
+    std::cout << points << endl;
+    cv::imshow("im_point", img);
 
     // Calculate width and height using Pythagoras' theorem, then perform perspective transformation
     int h = sqrt(pow(points[1].x - points[0].x, 2) + pow(points[1].y - points[0].y, 2));
     int w = sqrt(pow(points[2].x - points[1].x, 2) + pow(points[2].y - points[1].y, 2));
-    cout << "w: " << w << " h: " << h << endl;
+    std::cout << "w: " << w << " h: " << h << endl;
 
     vector<Point2f> src = {points[0], points[1], points[2], points[3]};
     vector<Point2f> dst = {{0, 0}, {0, h}, {w, h}, {w, 0}};
     Mat m = getPerspectiveTransform(src, dst);
     Mat result;
-    warpPerspective(gray, result, m, Size(w, h));
+    cv::warpPerspective(img_open, result, m, Size(w, h));
 
-    imshow("result", result);
-    waitKey(0);
-    destroyAllWindows();
+    cv::imshow("result", result);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
 
-    imshow("img1", img_cropped);
-    waitKey(0);
+    cv::imshow("img1", img_cropped);
+    cv::waitKey(0);
 
     return 0;
 
