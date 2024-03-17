@@ -3,6 +3,7 @@
 //
 
 #include "main.h"
+#include "scan.h"
 
 int main() {
     init();
