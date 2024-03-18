@@ -1,0 +1,12 @@
+
+#ifndef CLSSCAN_SERVO_H
+#define CLSSCAN_SERVO_H
+
+#define PIN31 RPI_BPLUS_GPIO_J8_31
+#define PIN33 RPI_BPLUS_GPIO_J8_33
+#define PIN35 RPI_BPLUS_GPIO_J8_35
+#define PIN37 RPI_BPLUS_GPIO_J8_37
+
+void servo(int num);
+
+#endif //CLSSCAN_SERVO_H
