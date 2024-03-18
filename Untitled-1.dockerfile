@@ -1,1 +1,0 @@
-cmake       -DCMAKE_CXX_COMPILER=C:/Users/86186/scoop/apps/mingw/13.2.0-rt_v11-rev1/bin/g++.exe       -DCMAKE_C_COMPILER=C:/Users/86186/scoop/apps/mingw/13.2.0-rt_v11-rev1/bin/gcc.exe       -DOpenCV_DIR=D:/opencv/build/x64/MinGW    -G "MinGW Makefiles" ..
