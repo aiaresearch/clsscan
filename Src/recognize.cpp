@@ -98,12 +98,13 @@ void transform_img(vector<Point> locations,int *x,int *y,float *height){
     vector<Point2f> src = {points[0], points[1], points[2], points[3]};
     vector<Point2f> dst = {{0, 0}, {0, *y}, {*x, *y}, {*x, 0}};
     Mat m = getPerspectiveTransform(src, dst);
+    cout<<m<<endl;
     Mat result;
     //cv::warpPerspective(img_open, result, m, Size(w, h));
     
 };
 
-// pair<int,int> class(column_location,number_top){
+// pair<int,int> class(column_location,number_top,int *b,int *c){
 //     vector<vector<int>> n(12);
 //     for (size_t i = 0; i < locations.size(); i++) {
 //         for (size_t j = 0; j < column_location.size(); j++) {
@@ -119,8 +120,8 @@ void transform_img(vector<Point> locations,int *x,int *y,float *height){
 //         }
 //     }
 
-//     int b_val = n[b - 1][0];
-//     int c_val = n[c - 1][0];
+//     int b_val = n[*b - 1][0];
+//     int c_val = n[*c - 1][0];
 //     pair<int,int> p(b_val,c_val);
 //     return p;
 // }

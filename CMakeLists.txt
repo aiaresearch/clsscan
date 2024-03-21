@@ -31,10 +31,16 @@ FetchContent_MakeAvailable(json)
 #add_executable(CLSSCAN Src/main_scan.cpp Src/scan.cpp)
 #target_link_libraries(CLSSCAN ${SANE_LIBRARY} ${OpenCV_LIBS})
 
-add_executable(recognize Src/main_recognize.cpp Src/recognize.cpp Src/config.cpp)
-target_link_libraries(recognize ${OpenCV_LIBS} nlohmann_json::nlohmann_json)
+# add_executable(recognize Src/main_recognize.cpp Src/recognize.cpp Src/config.cpp)
+# target_link_libraries(recognize ${OpenCV_LIBS} nlohmann_json::nlohmann_json)
+
+# add_executable(testing Src/testing.cpp)
+# target_link_libraries(testing ${OpenCV_LIBS} )
 
 #add_executable(test Src/test.cpp)
 #target_link_libraries(test ${OpenCV_LIBS})
-#add_executable(ocr Src/ocr.cpp)
-#target_link_libraries(ocr ${CURL_LIBRARIES})
+# add_executable(ocr Src/ocr.cpp)
+# target_link_libraries(ocr ${CURL_LIBRARIES})
+
+add_executable(base Src/base64.cpp)
+target_link_libraries(base ${CURL_LIBRARIES})

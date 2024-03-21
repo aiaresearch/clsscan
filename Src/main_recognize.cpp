@@ -11,9 +11,17 @@ using namespace cv;
 
 
 int main(){
+    struct clsscan_config {
+        std::vector<int> valid_idx;
+        std::vector<int> columns;
+        std::vector<int> rows;
+        std::vector<std::pair<int, int>> reference_points;
+    };
+    typedef struct clsscan_config clsscan_config;
     ifstream f("config.json");
     json config = json::parse(f);
-    clsscan_config conf = config;
+    clsscan_config conf;
+    from_json(config,conf);
     Point leftup_=Point(config["points_to_transform"]["leftup"]["x"],config["points_to_transform"]["leftup"]["y"]);
     Point leftdown_=Point(config["points_to_transform"]["leftdown"]["x"],config["points_to_transform"]["leftdown"]["y"]);
     Point rightdown_=Point(config["points_to_transform"]["rightdown"]["x"],config["points_to_transform"]["rightdown"]["y"]);
