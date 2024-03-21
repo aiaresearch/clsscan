@@ -23,8 +23,18 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 file(GLOB_RECURSE SOURCES "Src/*.*")
 
-add_executable(CLSSCAN Src/main.cpp Src/scan.cpp)
-target_link_libraries(CLSSCAN ${SANE_LIBRARY} ${OpenCV_LIBS})
+include(FetchContent)
 
-add_executable(ocr Src/ocr.cpp)
-target_link_libraries(ocr ${CURL_LIBRARIES})
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
+#add_executable(CLSSCAN Src/main_scan.cpp Src/scan.cpp)
+#target_link_libraries(CLSSCAN ${SANE_LIBRARY} ${OpenCV_LIBS})
+
+add_executable(recognize Src/main_recognize.cpp Src/recognize.cpp Src/config.cpp)
+target_link_libraries(recognize ${OpenCV_LIBS} nlohmann_json::nlohmann_json)
+
+#add_executable(test Src/test.cpp)
+#target_link_libraries(test ${OpenCV_LIBS})
+#add_executable(ocr Src/ocr.cpp)
+#target_link_libraries(ocr ${CURL_LIBRARIES})
