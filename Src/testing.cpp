@@ -50,6 +50,7 @@ int main(){
             contours_point[2].push_back(1);//
         }
     }
+    int *right_loc,*left_loc;
     pair<int, Point> leftup = make_pair(INT_MAX, Point(-1, -1));
     for (size_t i = 0; i < locations.size(); i++) { 
         int distance_squared = locations[i].x *locations[i].x+ locations[i].y *locations[i].y;
@@ -63,6 +64,7 @@ int main(){
         int distance_squared = locations[i].x *locations[i].x +locations[i].y *locations[i].y;
         if (distance_squared > rightdown.first) {
             rightdown = make_pair(distance_squared, Point(locations[i]));
+            *right_loc= &locations[i];
         }
     }
 
@@ -92,7 +94,7 @@ int main(){
     vector<Point2f> dst = {{0, 0}, {0, 200}, {200, 200}, {200, 0}};
     Mat m = getPerspectiveTransform(src, dst);
 
-// 二维Vector转换为Mat类型的mat_power
+// 二维Vector转换为Mat类型
 // Create a new, _empty_ cv::Mat with the row size of OrigSamples
     cv::Mat origin_point(0, contours_point[0].size(), cv::DataType<float>::type);
     for (unsigned int i = 0; i < contours_point.size(); ++i)

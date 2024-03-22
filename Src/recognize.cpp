@@ -1,4 +1,5 @@
 #include "recognize.h"
+
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <array>
@@ -56,7 +57,7 @@ pair<vector<Point>,int> image_proccess(const char * imgpath){
 //    cv::imshow("a",img_open);
 //    cv::waitKey();
 }
-void transform_img(vector<Point> locations,int *x,int *y,float *height){
+void transform_img(vector<Point> locations,int *x,int *y,int *height){
     pair<int, Point> leftup = make_pair(INT_MAX, Point(-1, -1));
     for (size_t i = 0; i < locations.size(); i++) { 
         int distance_squared = locations[i].x *locations[i].x+ locations[i].y *locations[i].y;
@@ -104,27 +105,27 @@ void transform_img(vector<Point> locations,int *x,int *y,float *height){
     
 };
 
-// pair<int,int> class(column_location,number_top,int *b,int *c){
-//     vector<vector<int>> n(12);
-//     for (size_t i = 0; i < locations.size(); i++) {
-//         for (size_t j = 0; j < column_location.size(); j++) {
-//             int column = column_location[j];
-//             if (column - 10 < locations[i].x && locations[i].x < column + 15) {
-//                 for (size_t k = 0; k < number_top.size(); k++) {
-//                     double top = number_top[k];
-//                     if (top - 10 < locations[i].y && locations[i].y < top + 10) {
-//                         n[j].push_back(k);
-//                     }
-//                 }
-//             }
-//         }
-//     }
+pair<int,int> class_rec(column_location,number_top,int *b,int *c){
+    vector<vector<int>> n(12);
+    for (size_t i = 0; i < locations.size(); i++) {
+        for (size_t j = 0; j < column_location.size(); j++) {
+            int column = column_location[j];
+            if (column - 10 < locations[i].x && locations[i].x < column + 15) {
+                for (size_t k = 0; k < number_top.size(); k++) {
+                    double top = number_top[k];
+                    if (top - 10 < locations[i].y && locations[i].y < top + 10) {
+                        n[j].push_back(k);
+                    }
+                }
+            }
+        }
+    }
 
-//     int b_val = n[*b - 1][0];
-//     int c_val = n[*c - 1][0];
-//     pair<int,int> p(b_val,c_val);
-//     return p;
-// }
+    int b_val = n[*b - 1][0];
+    int c_val = n[*c - 1][0];
+    pair<int,int> p(b_val,c_val);
+    return p;
+}
 
 /*void cut (){
     pair<int, Point> leftup = make_pair(INT_MAX, Point(-1, -1));
