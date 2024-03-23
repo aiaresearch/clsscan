@@ -32,9 +32,7 @@ vector<cv::Point> find_mark_points(const cv::Mat& img) {
     // Find contours
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
-    cout << "findContours" << endl;
     cv::findContours(img_open, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
-    cout << "findContours done" << endl;
 
     // Find the bounding box of the contours and return their locations
     std::vector<cv::Point> markPoints;
@@ -125,62 +123,3 @@ class_rec(vector<float> column_location, vector<int> number_top, int *b, int *c,
     pair<int, int> p(b_val, c_val);
     return p;
 }
-
-
-
-/*void cut (){
-    pair<int, Point> leftup = make_pair(INT_MAX, Point(-1, -1));
-    for (size_t i = 0; i < xx.size(); i++) { 
-        int distance_squared = xx[i] * xx[i] + yy[i] * yy[i];
-        if (distance_squared < leftup.first) {
-            leftup = make_pair(distance_squared, Point(xx[i], yy[i]));
-        }
-    }
-
-    pair<int, Point> rightdown = make_pair(0, Point(-1, -1));
-    for (size_t i = 0; i < xx.size(); i++) {
-        int distance_squared = xx[i] * xx[i] + yy[i] * yy[i];
-        if (distance_squared > rightdown.first) {
-            rightdown = make_pair(distance_squared, Point(xx[i], yy[i]));
-        }
-    }
-
-    pair<int, Point> leftdown = make_pair(INT_MAX, Point(-1, -1));
-    for (size_t i = 0; i < xx.size(); i++) {
-        int distance_squared = xx[i] * xx[i] + (yy[i]-img_open.rows) * (yy[i]-img_open.rows);
-        if (distance_squared < leftdown.first) {
-            leftdown = make_pair(distance_squared, Point(xx[i], yy[i]));
-        }
-    }
-
-    pair<int, Point> rightup = make_pair(INT_MAX, Point(-1, -1));
-    for (size_t i = 0; i < xx.size(); i++) {
-        int distance_squared = (xx[i]-img_open.cols) * (xx[i]-img_open.cols) + yy[i] * yy[i];
-        if (distance_squared < rightup.first) {
-            rightup = make_pair(distance_squared, Point(xx[i], yy[i]));
-        }
-    }
-
-    Point leftup_point = leftup.second;
-    Point rightdown_point = rightdown.second;
-    Point leftdown_point = leftdown.second;
-    //Point rightup_point = leftdown_point-leftup_point+rightdown_point;
-    Point rightup_point =rightup.second;
-
-    Mat img_cropped = img_open(Rect(leftup_point, rightdown_point));
-    vector<Point> docCnt={leftup_point,rightdown_point,leftdown_point,rightup_point };
-    //cout<<docCnt << endl;
-
-    // Mark points with circles
-    vector<Point> points;
-    for (size_t i = 0; i < docCnt.size(); ++i) {
-        Point peak = docCnt[i];
-        circle(img, peak, 10, Scalar(0, 0, 255), 2);
-        points.push_back(peak);
-    }
-    cv::pyrDown(img,img);
-    std::cout << points << endl;
-    cv::imshow("im_point", img);
-
-}*/
-
