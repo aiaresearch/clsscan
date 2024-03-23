@@ -68,7 +68,7 @@ void init_device() {
     printf("Option title: %s\n", option->title);
     printf("Option type: %d\n", option->type);
 
-    sane_control_option(handle, SOURCE_OPT, SANE_ACTION_SET_VALUE, (void *)source_str, NULL);
+    sane_control_option(handle, SOURCE_OPT, SANE_ACTION_SET_VALUE, (void *) source_str, NULL);
 }
 
 void scan() {
@@ -82,11 +82,11 @@ void scan() {
     double progr;
     SANE_Int total_bytes = 0;
     SANE_Int max_length = parameters.bytes_per_line * parameters.lines;
-    buffer = (SANE_Byte *)malloc(max_length);
+    buffer = (SANE_Byte *) malloc(max_length);
     printf("Buffer allocated, max_length=%d\n", max_length);
 
-    while (true){
-        status = sane_read(handle, buffer+total_bytes, max_length, &bytes_read);
+    while (true) {
+        status = sane_read(handle, buffer + total_bytes, max_length, &bytes_read);
         total_bytes += bytes_read;
         progr = ((total_bytes * 100.) / (double) max_length);
         if (progr > 100.) progr = 100.;

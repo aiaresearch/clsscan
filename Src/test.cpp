@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
-#include <cmath>  
-#include "iostream" 
+#include <cmath>
+#include "iostream"
 
 using namespace cv;
 using namespace std;
@@ -24,7 +24,6 @@ int main() {
     int h = sqrt(pow(points[1].x - points[0].x, 2) + pow(points[1].y - points[0].y, 2));
     int w = sqrt(pow(points[2].x - points[1].x, 2) + pow(points[2].y - points[1].y, 2));
     std::cout << "w: " << w << " h: " << h << endl;
-
 
 
     cv::imshow("result", result);

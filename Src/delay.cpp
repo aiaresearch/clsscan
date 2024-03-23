@@ -7,14 +7,14 @@
 
 int main() {
     // 创建一个新线程并启动
-    std::thread t(servo,0);
+    std::thread t(servo, 0);
     GPIOmotor();
     usleep(10'000'000);
     GPIOmotoroff();
-    
+
     // 等待子线程结束
     //t.join();
     t.detach();
-    
+
     return 0;
 }

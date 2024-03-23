@@ -4,6 +4,7 @@
 
 using namespace std;
 using namespace cv;
-int main(){
-    
+
+int main() {
+
 }

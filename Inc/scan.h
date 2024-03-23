@@ -10,9 +10,13 @@
 #define SCANNER_NAME "fujitsu:fi-6225dj:27240"
 
 void init();
+
 void init_device();
+
 void scan();
+
 void save();
+
 void release();
 
 #endif //CLSSCAN_SCAN_H

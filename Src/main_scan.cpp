@@ -4,6 +4,7 @@
 
 #include "main.h"
 #include "scan.h"
+
 int main() {
     init();
     init_device();

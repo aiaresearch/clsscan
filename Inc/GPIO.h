@@ -8,6 +8,7 @@
 #define PIN4 27
 
 int GPIOmotor();
+
 int GPIOmotoroff();
 
 #endif //CLSSCAN_GPIO_H
