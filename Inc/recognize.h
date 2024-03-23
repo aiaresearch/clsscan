@@ -20,9 +20,15 @@ struct clsscan_config {
 };
 typedef struct clsscan_config conf;
 
-void from_json(const json& j, clsscan_config& config);
+void from_json(const json &j, clsscan_config &config);
 
-pair<pair<vector<Point>,int>,vector<vector<float>> > image_proccess(const char * imgpath);
-vector<Point> transform_img(vector<Point> locations,int x,int y,int *height,vector<vector<float>> contours_point);
-pair<int,int> class_rec(vector<float> column_location ,vector<int> number_top ,int *b,int *c,vector<Point> locations);
+cv::Mat img_preprocess(const cv::Mat& image);
+
+vector<cv::Point> find_mark_points(const cv::Mat& img);
+
+vector<cv::Point2f> transform_points(const std::vector<cv::Point>& locations, int im_w, int im_h, const clsscan_config& config);
+
+pair<int, int>
+class_rec(vector<float> column_location, vector<int> number_top, int *b, int *c, vector<Point> locations);
+
 #endif

@@ -8,140 +8,103 @@ using namespace std;
 using namespace cv;
 
 
-    
+cv::Mat img_preprocess(const cv::Mat& image) {
+    // Process the input image
+    cv::Mat processedImage;
+    cv::cvtColor(image, processedImage, cv::COLOR_BGR2GRAY);
+    pyrDown(image, processedImage);
+    pyrDown(processedImage, processedImage);
 
-pair<pair<vector<Point>,int>,vector<vector<float>> > image_proccess(const char * imgpath){ 
-    Mat img = imread(imgpath);
-    int height = img.rows;
-    //img = img(Rect(0, 0, img.cols, top));
-    pyrDown(img, img);
-    pyrDown(img, img);
-    
     Mat img_gray, img_binary;
-    cvtColor(img, img_gray, COLOR_BGR2GRAY);
-    adaptiveThreshold(img_gray, img_binary, 100, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY,31, 30);
-//    imshow("c",img_binary);
-//    waitKey();
+    cvtColor(processedImage, img_gray, COLOR_BGR2GRAY);
+    adaptiveThreshold(img_gray, img_binary, 100, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 31, 30);
+    return img_binary;
+}
 
-    Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
+
+vector<cv::Point> find_mark_points(const cv::Mat& img) {
+    // Process the image
+    Mat kernel = cv::getStructuringElement(MORPH_RECT, Size(3, 3));
     Mat img_open;
-    dilate(img_binary, img_open, kernel, Point(-1, -1), 3);
-    erode(img_open, img_open, kernel, Point(-1, -1), 3);
+    cv::dilate(img, img_open, kernel, Point(-1, -1), 3);
+    cv::erode(img_open, img_open, kernel, Point(-1, -1), 3);
 
-    
-
+    // Find contours
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
-    findContours(img_open, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+    cout << "findContours" << endl;
+    cv::findContours(img_open, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+    cout << "findContours done" << endl;
 
-
-    vector<int> xx, yy;
-    vector<Point> locations;
-    //vector<int> xx, yy;
-    vector<vector<float>> contours_point={{},{},{}};
-    for (size_t i = 0; i < contours.size(); i++) {
-        Rect rect = boundingRect(contours[i]);
-        int x = rect.x;
-        int y = rect.y;
-        int w = rect.width;
-        int h = rect.height;
+    // Find the bounding box of the contours and return their locations
+    std::vector<cv::Point> markPoints;
+    for (size_t i = 0; i < contours.size(); ++i) {
+        cv::Rect boundingBox = cv::boundingRect(contours[i]);
+        int w = boundingBox.width;
+        int h = boundingBox.height;
+        // Check if the bounding box satisfies the criteria
         if (w > h && w < 150 && h < 150) {
-            rectangle(img_open, Point(x, y), Point(x + w, y + h), Scalar(0, 0, 255), 1);
-            locations.push_back(Point(x, y));
-            //xx.push_back(x);
-            //yy.push_back(y);
-            contours_point[0].push_back(x);
-            contours_point[1].push_back(y);
-            contours_point[2].push_back(1);
+            markPoints.push_back(boundingBox.tl()); // Add top-left corner of the bounding box
         }
     }
-    pair<vector<Point>,int> locations_height=pair (locations,height);
-    pair<pair<vector<Point>,int>,vector<vector<float>> > pair1=pair (locations_height,contours_point);
-    return (pair1) ;
 
-//    cv::imshow("a",img_open);
-//    cv::waitKey();
+    return markPoints;
 }
-vector<Point> transform_img(vector<Point> locations,int x,int y,int *height,vector<vector<float>> contours_point){
-    int right_loc,left_loc;
-    pair<int, Point> leftup = make_pair(INT_MAX, Point(-1, -1));
-    for (size_t i = 0; i < locations.size(); i++) {
-        int distance_squared = locations[i].x *locations[i].x+ locations[i].y *locations[i].y;
-        if (distance_squared < leftup.first) {
-            leftup = make_pair(distance_squared, Point(locations[i]));
-            left_loc = i;
+
+vector<cv::Point2f> transform_points(const std::vector<cv::Point>& locations, int im_w, int im_h, const clsscan_config& config) {
+
+    // Calculate the corners of the image
+    vector<cv::Point2f> corners = {
+            cv::Point2f(0, 0), // Top-left
+            cv::Point2f(0, im_h), // Bottom-left
+            cv::Point2f(im_w, im_h), // Bottom-right
+            cv::Point2f(im_w, 0)  // Top-right
+    };
+
+    // Find the nearest point to the corners
+    vector<cv::Point2f> src(4);
+
+    double distance[4];
+    double d;
+
+    for (int i = 0; i < locations.size(); ++i) {
+        for (int j = 0; j < 4; ++j) {
+            d = cv::norm(cv::Point2f(locations[i]) - corners[j]);
+            if (i == 0 || d < distance[j]) {
+                distance[j] = d;
+                src[j] = locations[i];
+            }
         }
     }
 
-    pair<int, Point> rightdown = make_pair(0, Point(-1, -1));
-    for (size_t i = 0; i < locations.size(); i++) {
-        int distance_squared = locations[i].x *locations[i].x +locations[i].y *locations[i].y;
-        if (distance_squared > rightdown.first) {
-            rightdown = make_pair(distance_squared, Point(locations[i]));
-            right_loc=i;
-        }
-    }
+    // Set the destination points
+    vector<cv::Point2f> dst = {
+            cv::Point2f(config.reference_points[0].first, config.reference_points[0].second), // Left-up
+            cv::Point2f(config.reference_points[1].first, config.reference_points[1].second), // Left-down
+            cv::Point2f(config.reference_points[2].first, config.reference_points[2].second), // Right-down
+    };
+    dst.push_back(dst[0] + dst[2] - dst[1]); // Right-up
 
-    pair<int, Point> leftdown = make_pair(INT_MAX, Point(-1, -1));
-    for (size_t i = 0; i < locations.size(); i++) {
-        int distance_squared =locations[i].x *locations[i].x + (locations[i].y- *height) * (locations[i].y- *height);
-        if (distance_squared < leftdown.first) {
-            leftdown = make_pair(distance_squared, Point(locations[i]));
-        }
-    }
-    Point leftup_point = leftup.second;
-    Point rightdown_point = rightdown.second;
-    Point leftdown_point = leftdown.second;
-    Point rightup_point = rightdown_point-leftdown_point+leftup_point;
-    //Mat img_cropped = img_open(Rect(leftup_point, rightdown_point));
-    vector<Point> docCnt={leftup_point,rightdown_point,leftdown_point,rightup_point };
-    //cout<<docCnt << endl;
+    // Calculate the perspective transform matrix
+    Mat m = cv::getPerspectiveTransform(src, dst);
 
-    // Mark points with circles
-    vector<Point> points;
-    for (size_t i = 0; i < docCnt.size(); ++i) {
-        Point peak = docCnt[i];
-        points.push_back(peak);
+    // Transform the locations
+    vector<cv::Point2f> result;
+    cv::Mat points(3, locations.size(), CV_32FC1);
+    for (int i = 0; i < locations.size(); ++i) {
+        points.at<float>(0, i) = (float)locations[i].x;
+        points.at<float>(1, i) = (float)locations[i].y;
+        points.at<float>(2, i) = 1;
     }
-    
-    vector<Point2f> src = {points[0], points[1], points[2], points[3]};
-    vector<Point2f> dst = {{0, 0}, {0, y}, {x, y}, {x, 0}};
-    Mat m = getPerspectiveTransform(src, dst);
-    cout<<m<<endl;
-    
-    Mat origin_point(0, contours_point[0].size(), cv::DataType<float>::type);
-    for (unsigned int i = 0; i < contours_point.size(); ++i)
-    {
-        // Make a temporary cv::Mat row and add to NewSamples _without_ data copy
-        cv::Mat Sample(1, contours_point[0].size(), cv::DataType<float>::type, contours_point[i].data());
-        origin_point.push_back(Sample);
-    }
-    origin_point.convertTo(origin_point,6,1,0);
-    cout<<"origin_point:"<<origin_point.size<<endl;
-    cout<<"m"<<m.size<<endl;
-    cout<<origin_point<<endl;
-    Mat test;
-    transform(origin_point,test,m);
+    cv::transform(points, points, m);
+    for (int i = 0; i < locations.size(); ++i)
+        result.push_back(cv::Point(points.at<float>(0, i), points.at<float>(1, i)));
 
-    // Mat standard_point=m*origin_point;
-    //  //cout<<standard_point<<endl;
-    // for(int i=0;i<contours_point[0].size();i++){
-    //     float x =(float)standard_point.at<float>(0,i);
-    //     float y =(float)standard_point.at<float>(1,i);
-    //     locations[i]=Point (x,y);
-    //     }
-    
-    // float right=locations[right_loc].x;
-    // float left=locations[left_loc].x;
-    // for(int i=0;i<locations.size();i++){
-    //     locations[i]=(dst[2].x-dst[0].x)/(right-left)*locations[i];
-    // }
-    // cout<<locations[0].x<<endl;
-    // cout<<locations[0].y<<endl;
-    // cout<<"done"<<endl;
-    // return locations;
+    return result;
 }
-pair<int,int> class_rec(vector<float> column_location ,vector<int> number_top,int *b,int *c,vector<Point> locations){
+
+pair<int, int>
+class_rec(vector<float> column_location, vector<int> number_top, int *b, int *c, vector<Point> locations) {
     vector<vector<int>> n(12);
     for (size_t i = 0; i < locations.size(); i++) {
         for (size_t j = 0; j < column_location.size(); j++) {
@@ -159,7 +122,7 @@ pair<int,int> class_rec(vector<float> column_location ,vector<int> number_top,in
 
     int b_val = n[*b - 1][0];
     int c_val = n[*c - 1][0];
-    pair<int,int> p(b_val,c_val);
+    pair<int, int> p(b_val, c_val);
     return p;
 }
 
