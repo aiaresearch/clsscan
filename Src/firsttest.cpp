@@ -6,12 +6,13 @@ using namespace std;
 using namespace cv;
 
 int main(){
-    Mat img = imread("/home/pi/Code/clsscan/img/test.png");
+    Mat img = imread("/home/pi/Code/clsscan/img/test.png");//imread("/home/pi/Code/clsscan/img/test.png");
     int height = img.rows;
     //img = img(Rect(0, 0, img.cols, top));
     pyrDown(img, img);
     pyrDown(img, img);
-    
+    Scalar value((255,255),(255,255), (255,255));
+    //copyMakeBorder(img,img,400,0,20,20,BORDER_CONSTANT,value);
     Mat img_gray, img_binary;
     cvtColor(img, img_gray, COLOR_BGR2GRAY);
     adaptiveThreshold(img_gray, img_binary, 100, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY,31, 30);
@@ -22,8 +23,11 @@ int main(){
     Mat img_open;
     dilate(img_binary, img_open, kernel, Point(-1, -1), 3);
     erode(img_open, img_open, kernel, Point(-1, -1), 3);
+    pyrDown(img_open, img_open);
+    pyrDown(img,img);
 
-    
+    imshow("c",img_open);
+    waitKey();
 
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
@@ -40,7 +44,7 @@ int main(){
         int y = rect.y;
         int w = rect.width;
         int h = rect.height;
-        if (w > h && w < 150 && h < 150) {
+        if (w > h && w>10 && w < 150 && h < 150) {
             rectangle(img_open, Point(x, y), Point(x + w, y + h), Scalar(0, 0, 255), 1);
             locations.push_back(Point(x, y));
             //xx.push_back(x);
@@ -79,50 +83,32 @@ int main(){
     Point leftup_point = leftup.second;
     Point rightdown_point = rightdown.second;
     Point leftdown_point = leftdown.second;
-    Point rightup_point = leftdown_point-leftup_point+rightdown_point;
+    Point rightup_point = rightdown_point-leftdown_point+leftup_point;
     //Mat img_cropped = img_open(Rect(leftup_point, rightdown_point));
-    vector<Point> docCnt={leftup_point,rightdown_point,leftdown_point,rightup_point };
+    cout<<leftup_point<<rightdown_point<<leftdown_point<<rightup_point<<endl;
+    vector<Point> docCnt={leftup_point,leftdown_point,rightdown_point,rightup_point };
     //cout<<docCnt << endl;
 
     // Mark points with circles
     vector<Point> points;
     for (size_t i = 0; i < docCnt.size(); ++i) {
         Point peak = docCnt[i];
+        circle(img_open, peak, 10, Scalar(0, 0, 255), 2);
         points.push_back(peak);
     }
+    imshow("a",img_open);
+    waitKey();
+    imwrite("/home/pi/Desktop/img_enrode.jpg",img_open);
     
     vector<Point2f> src = {points[0], points[1], points[2], points[3]};
-    vector<Point2f> dst = {{0, 0}, {0, 200}, {200, 200}, {200, 0}};
+    cout<<points[0]<<points[1]<<points[2]<<endl;
+    vector<Point2f> dst = {{0, 0}, {0, 400}, {250, 400}, {250, 0}};
     Mat m = getPerspectiveTransform(src, dst);
+    Mat img_finish;
+    warpPerspective(img_open, img_finish, m, Size(250, 400));
+    warpPerspective(img, img, m, Size(250,400));
+    imwrite("img_finish.jpg",img_finish);
+    imwrite("img2.jpg",img);
 
-// 二维Vector转换为Mat类型
-// Create a new, _empty_ cv::Mat with the row size of OrigSamples
-    cv::Mat origin_point(0, contours_point[0].size(), cv::DataType<float>::type);
-    for (unsigned int i = 0; i < contours_point.size(); ++i)
-    {
-	 // Make a temporary cv::Mat row and add to NewSamples _without_ data copy
-	    cv::Mat Sample(1, contours_point[0].size(), cv::DataType<float>::type, contours_point[i].data());
-	    origin_point.push_back(Sample);
-    }
-    origin_point.convertTo(origin_point,6,1,0);
-    Mat standard_point=m*origin_point;
-    //cout<<standard_point<<endl;
-    for(int i=0;i<contours_point[0].size();i++){
-        float x =(float)standard_point.at<float>(0,i);
-        float y =(float)standard_point.at<float>(1,i);
-        locations[i]=Point (x,y);
-        }
-    cout<<locations<<endl;
-    float right=locations[right_loc].x;
-    float left=locations[left_loc].x;
-    for(int i=0;i<locations.size();i++){
-        locations[i]=(dst[2].x-dst[0].x)/(right-left)*locations[i];
-    }
-    cout<<locations<<endl;
 
-    
-    return 0;
-
-    //Mat result;
-    //cv::warpPerspective(img_open, result, m, Size(w, h));
 }

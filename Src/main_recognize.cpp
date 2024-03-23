@@ -21,10 +21,15 @@ int main(){
     Point rightdown_=Point(config["points_to_transform"]["rightdown"]["x"],config["points_to_transform"]["rightdown"]["y"]);
     int rightdown_x=config["points_to_transform"]["rightdown"]["x"];
     int rightdown_y=config["points_to_transform"]["rightdown"]["y"];
-    pair<vector<Point>,float> locations_height=image_proccess("/home/pi/Code/clsscan/img/scan.png");
-    vector<Point> locations = locations_height.first;
-    int height = locations_height.second;
-    transform_img(locations, &rightdown_x,&rightdown_y,&height);
-
+    pair<pair<vector<Point>,int>,vector<vector<float>> > pair1=image_proccess("/home/pi/Code/clsscan/img/scan.png");
+    vector<Point> locations = pair1.first.first;
+    int height =pair1.first.second;
+    vector<vector<float>> contours_point = pair1.second;
+    locations=transform_img(locations, rightdown_x,rightdown_y,&height,contours_point);
+    cout << 29 << endl;
+    vector<float> columns=conf.columns;
+    cout << 31 << ' ' << columns[0] << endl;
+    vector<int> rows=conf.rows;
+    pair<int,int> result =class_rec(columns,rows,&conf.valid_idx[0],&conf.valid_idx[1],locations);
     return 0;
 }
