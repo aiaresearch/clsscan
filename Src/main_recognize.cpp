@@ -27,8 +27,15 @@ int main() {
     vector<Point2f> transformed_points = transform_points(mark_points, img_open.cols, img_open.rows, conf);
 
     // Output the transformed points
+    cout << "Transformed points:" << endl;
     for (const auto& point : transformed_points) {
         cout << point << endl;
     }
+    cout << "====================" << endl;
+
+    // Extract the class number
+    int class_number = extract_class_id(transformed_points, conf);
+    cout << "Class number: " << class_number << endl;
+
     return 0;
 }

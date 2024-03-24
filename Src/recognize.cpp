@@ -107,7 +107,65 @@ vector<cv::Point2f> transform_points(const std::vector<cv::Point2f>& locations, 
 
 int extract_class_id(const std::vector<cv::Point2f>& locations, const clsscan_config& config) {
     // Extract the class ID
+    int serial_num[config.columns.size() - 1];
+    int mid, left, right, col, row;
     int class_id = 0;
 
-    return class_id
+    // Initialize the serial number
+    for (int i = 0; i < config.columns.size() - 1; ++i)
+        serial_num[i] = -1;
+
+    // Iterate over the detected points
+    for (const auto& point : locations) {
+        // Check if the point is within the target region
+        cout << "point: " << point << endl;
+        if (point.x < config.rows.front()-7 || point.x > config.rows.back()+7 || point.y < config.columns.front()-7 || point.y > config.columns.back()+7)
+            continue;
+        // Match the point with the rows and columns
+        // Rows
+        left = 0;
+        right = (int)config.rows.size() - 1;
+        while (left < right) {
+            mid = (left + right) / 2;
+            if (point.x < config.rows[mid])
+                right = mid;
+            else
+                left = mid + 1;
+        }
+        col = left;
+
+        // Columns
+        left = 0;
+        right = (int)config.columns.size() - 1;
+        while (left < right) {
+            mid = (left + right) / 2;
+            if (point.y < config.columns[mid])
+                right = mid;
+            else
+                left = mid + 1;
+        }
+        row = left;
+
+        // Extract the class ID
+        if (col > 0 && row > 0) {
+            serial_num[col - 1] = row;
+        }
+
+        cout << "col: " << col << " row: " << row << endl;
+    }
+
+    // Output the serial number
+    cout << "Serial number: ";
+    for (int i = 0; i < config.columns.size() - 1; ++i)
+        cout << serial_num[i] << " ";
+    cout << endl;
+
+    // Calculate the class ID
+    for (int i = 0; i < config.valid_idx.size(); ++i) {
+        if (serial_num[i] == -1)
+            return -1;
+        class_id = class_id * 10 + serial_num[i];
+    }
+
+    return class_id;
 }
