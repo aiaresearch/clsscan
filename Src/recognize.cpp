@@ -1,4 +1,5 @@
 #include "recognize.h"
+#include "config.h"
 
 #include <opencv2/opencv.hpp>
 #include <vector>
@@ -104,25 +105,9 @@ vector<cv::Point2f> transform_points(const std::vector<cv::Point2f>& locations, 
     return result;
 }
 
-pair<int, int>
-class_rec(vector<float> column_location, vector<int> number_top, int *b, int *c, vector<Point> locations) {
-    vector<vector<int>> n(12);
-    for (size_t i = 0; i < locations.size(); i++) {
-        for (size_t j = 0; j < column_location.size(); j++) {
-            int column = column_location[j];
-            if (column - 10 < locations[i].x && locations[i].x < column + 15) {
-                for (size_t k = 0; k < number_top.size(); k++) {
-                    double top = number_top[k];
-                    if (top - 10 < locations[i].y && locations[i].y < top + 10) {
-                        n[j].push_back(k);
-                    }
-                }
-            }
-        }
-    }
+int extract_class_id(const std::vector<cv::Point2f>& locations, const clsscan_config& config) {
+    // Extract the class ID
+    int class_id = 0;
 
-    int b_val = n[*b - 1][0];
-    int c_val = n[*c - 1][0];
-    pair<int, int> p(b_val, c_val);
-    return p;
+    return class_id
 }
