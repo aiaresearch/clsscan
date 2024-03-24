@@ -21,7 +21,7 @@ int main() {
     img_open = img_preprocess(img_open);
 
     // Find the mark points
-    vector<Point> mark_points = find_mark_points(img_open);
+    vector<Point2f> mark_points = find_mark_points(img_open);
 
     // Transform the points
     vector<Point2f> transformed_points = transform_points(mark_points, img_open.cols, img_open.rows, conf);

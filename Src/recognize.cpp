@@ -22,7 +22,7 @@ cv::Mat img_preprocess(const cv::Mat& image) {
 }
 
 
-vector<cv::Point> find_mark_points(const cv::Mat& img) {
+vector<cv::Point2f> find_mark_points(const cv::Mat& img) {
     // Process the image
     Mat kernel = cv::getStructuringElement(MORPH_RECT, Size(3, 3));
     Mat img_open;
@@ -35,7 +35,7 @@ vector<cv::Point> find_mark_points(const cv::Mat& img) {
     cv::findContours(img_open, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
 
     // Find the bounding box of the contours and return their locations
-    std::vector<cv::Point> markPoints;
+    std::vector<cv::Point2f> markPoints;
     for (size_t i = 0; i < contours.size(); ++i) {
         cv::Rect boundingBox = cv::boundingRect(contours[i]);
         int w = boundingBox.width;
@@ -49,24 +49,24 @@ vector<cv::Point> find_mark_points(const cv::Mat& img) {
     return markPoints;
 }
 
-vector<cv::Point2f> transform_points(const std::vector<cv::Point>& locations, int im_w, int im_h, const clsscan_config& config) {
+vector<cv::Point2f> transform_points(const std::vector<cv::Point2f>& locations, int im_w, int im_h, const clsscan_config& config) {
 
     // Calculate the corners of the image
-    vector<cv::Point2f> corners = {
+    cv::Point2f corners[3] = {
             cv::Point2f(0, 0), // Top-left
             cv::Point2f(0, im_h), // Bottom-left
             cv::Point2f(im_w, im_h), // Bottom-right
-            cv::Point2f(im_w, 0)  // Top-right
+//            cv::Point2f(im_w, 0)  // Top-right
     };
 
     // Find the nearest point to the corners
-    vector<cv::Point2f> src(4);
+    cv::Point2f src[3];
 
     double distance[4];
     double d;
 
     for (int i = 0; i < locations.size(); ++i) {
-        for (int j = 0; j < 4; ++j) {
+        for (int j = 0; j < 3; ++j) {
             d = cv::norm(cv::Point2f(locations[i]) - corners[j]);
             if (i == 0 || d < distance[j]) {
                 distance[j] = d;
@@ -76,27 +76,30 @@ vector<cv::Point2f> transform_points(const std::vector<cv::Point>& locations, in
     }
 
     // Set the destination points
-    vector<cv::Point2f> dst = {
+    Point2f dst[3] = {
             cv::Point2f(config.reference_points[0].first, config.reference_points[0].second), // Left-up
             cv::Point2f(config.reference_points[1].first, config.reference_points[1].second), // Left-down
             cv::Point2f(config.reference_points[2].first, config.reference_points[2].second), // Right-down
     };
-    dst.push_back(dst[0] + dst[2] - dst[1]); // Right-up
+//    dst.push_back(dst[0] + dst[2] - dst[1]); // Right-up
 
     // Calculate the perspective transform matrix
-    Mat m = cv::getPerspectiveTransform(src, dst);
+//    Mat m = cv::getPerspectiveTransform(src, dst);
+    Mat m = cv::getAffineTransform(src, dst);
 
     // Transform the locations
     vector<cv::Point2f> result;
-    cv::Mat points(3, locations.size(), CV_32FC1);
-    for (int i = 0; i < locations.size(); ++i) {
-        points.at<float>(0, i) = (float)locations[i].x;
-        points.at<float>(1, i) = (float)locations[i].y;
-        points.at<float>(2, i) = 1;
-    }
-    cv::transform(points, points, m);
-    for (int i = 0; i < locations.size(); ++i)
-        result.push_back(cv::Point(points.at<float>(0, i), points.at<float>(1, i)));
+//    cv::Mat points(3, locations.size(), CV_32FC1);
+//    for (int i = 0; i < locations.size(); ++i) {
+//        points.at<float>(0, i) = (float)locations[i].x;
+//        points.at<float>(1, i) = (float)locations[i].y;
+//        points.at<float>(2, i) = 1;
+//    }
+//    cout << points.size << endl;
+//    cout << m.size << endl;
+    cv::transform(locations, result, m);
+//    for (int i = 0; i < locations.size(); ++i)
+//        result.push_back(cv::Point(points.at<float>(0, i), points.at<float>(1, i)));
 
     return result;
 }

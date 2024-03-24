@@ -24,9 +24,9 @@ void from_json(const json &j, clsscan_config &config);
 
 cv::Mat img_preprocess(const cv::Mat& image);
 
-vector<cv::Point> find_mark_points(const cv::Mat& img);
+vector<cv::Point2f> find_mark_points(const cv::Mat& img);
 
-vector<cv::Point2f> transform_points(const std::vector<cv::Point>& locations, int im_w, int im_h, const clsscan_config& config);
+vector<cv::Point2f> transform_points(const std::vector<cv::Point2f>& locations, int im_w, int im_h, const clsscan_config& config);
 
 pair<int, int>
 class_rec(vector<float> column_location, vector<int> number_top, int *b, int *c, vector<Point> locations);
