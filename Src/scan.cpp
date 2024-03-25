@@ -71,11 +71,13 @@ void init_device() {
     sane_control_option(handle, SOURCE_OPT, SANE_ACTION_SET_VALUE, (void *) source_str, NULL);
 }
 
-void scan() {
+cv::Mat scan() {
+	printf("Staring the scanning process\n");
     status = sane_start(handle);
+    printf("ret=%d\n", status);
     if (status != SANE_STATUS_GOOD) {
         fprintf(stderr, "Error: Scan: %s\n", sane_strstatus(status));
-        return;
+        return cv::Mat();
     }
     printf("Scanning started\n");
 
@@ -86,6 +88,7 @@ void scan() {
     printf("Buffer allocated, max_length=%d\n", max_length);
 
     while (true) {
+	    printf("Waiting for data\n");
         status = sane_read(handle, buffer + total_bytes, max_length, &bytes_read);
         total_bytes += bytes_read;
         progr = ((total_bytes * 100.) / (double) max_length);
@@ -95,7 +98,7 @@ void scan() {
             break;
         if (status != SANE_STATUS_GOOD) {
             fprintf(stderr, "Error: Read: %s\n", sane_strstatus(status));
-            return;
+            return cv::Mat();
         }
     }
     printf("Scanning finished\n");
@@ -121,7 +124,8 @@ void scan() {
     cv::imshow("Scanned Image", image);
     cv::waitKey(0); // Wait for a key press to close the window
     cv::destroyAllWindows();
-    cv::imwrite("test.png", image);
+    //cv::imwrite("test.png", image);
+    return image;
 }
 
 void release() {

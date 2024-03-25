@@ -9,11 +9,13 @@
 #define SOURCE_STR "ADF Front"
 #define SCANNER_NAME "fujitsu:fi-6225dj:27240"
 
+#include <opencv2/opencv.hpp>
+
 void init();
 
 void init_device();
 
-void scan();
+cv::Mat scan();
 
 void save();
 

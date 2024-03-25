@@ -39,8 +39,9 @@ FetchContent_MakeAvailable(json)
 #add_executable(CLSSCAN Src/main_scan.cpp Src/scan.cpp)
 #target_link_libraries(CLSSCAN ${SANE_LIBRARY} ${OpenCV_LIBS})
 
-add_executable(recognize Src/main_recognize.cpp Src/recognize.cpp Src/config.cpp)
-target_link_libraries(recognize ${OpenCV_LIBS} nlohmann_json::nlohmann_json)
+add_executable(recognize Src/main.cpp Src/recognize.cpp Src/config.cpp Src/servo.cpp Src/GPIO.cpp Src/scan.cpp)
+target_link_libraries(recognize ${OpenCV_LIBS} ${WIRINGPI_LIB} ${SANE_LIBRARY} nlohmann_json::nlohmann_json)
+target_link_libraries(recognize "/home/pi/Code/ClassificationOfPapers/bcm2835-1.75/src/libbcm2835.a" ${PiPCA9685_LIBRARY})
 
 # add_executable(testing Src/testing.cpp)
 # target_link_libraries(testing ${OpenCV_LIBS} )

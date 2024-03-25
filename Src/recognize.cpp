@@ -29,7 +29,7 @@ vector<cv::Point2f> find_mark_points(const cv::Mat& img) {
     Mat img_open;
     cv::dilate(img, img_open, kernel, Point(-1, -1), 3);
     cv::erode(img_open, img_open, kernel, Point(-1, -1), 3);
-
+    pyrDown(img_open, img_open);
     // Find contours
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
@@ -166,6 +166,7 @@ int extract_class_id(const std::vector<cv::Point2f>& locations, const clsscan_co
             return -1;
         class_id = class_id * 10 + serial_num[config.valid_idx[i]-1];
     }
+    
 
     return class_id;
 }
