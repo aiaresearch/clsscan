@@ -118,7 +118,7 @@ int extract_class_id(const std::vector<cv::Point2f>& locations, const clsscan_co
     // Iterate over the detected points
     for (const auto& point : locations) {
         // Check if the point is within the target region
-        cout << "point: " << point << endl;
+        cout << endl << "point: " << point << endl;
         if (point.x < config.rows.front()-7 || point.x > config.rows.back()+7 || point.y < config.columns.front()-7 || point.y > config.columns.back()+7)
             continue;
         // Match the point with the rows and columns
@@ -147,8 +147,8 @@ int extract_class_id(const std::vector<cv::Point2f>& locations, const clsscan_co
         row = left;
 
         // Extract the class ID
-        if (col > 0 && row > 0) {
-            serial_num[col - 1] = row;
+        if (col >= 0 && row >= 0) {
+            serial_num[col] = row;
         }
 
         cout << "col: " << col << " row: " << row << endl;
@@ -162,9 +162,9 @@ int extract_class_id(const std::vector<cv::Point2f>& locations, const clsscan_co
 
     // Calculate the class ID
     for (int i = 0; i < config.valid_idx.size(); ++i) {
-        if (serial_num[i] == -1)
+        if (serial_num[config.valid_idx[i]-1] == -1)
             return -1;
-        class_id = class_id * 10 + serial_num[i];
+        class_id = class_id * 10 + serial_num[config.valid_idx[i]-1];
     }
 
     return class_id;
