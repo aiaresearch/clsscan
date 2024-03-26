@@ -6,7 +6,7 @@ using namespace std;
 using namespace cv;
 
 int main() {
-    Mat img = imread("/home/pi/Code/clsscan/img/test.png");//imread("/home/pi/Code/clsscan/img/test.png");
+    Mat img = imread("/home/pi/Code/clsscan/img.jpg");//imread("/home/pi/Code/clsscan/img/test.png");
     int height = img.rows;
     //img = img(Rect(0, 0, img.cols, top));
     pyrDown(img, img);
@@ -46,7 +46,7 @@ int main() {
         int y = rect.y;
         int w = rect.width;
         int h = rect.height;
-        if (w > h && w > 10 && w < 150 && h < 150) {
+        if (w > 10 && w < 150 && h>10&&h < 150) {
             rectangle(img_open, Point(x, y), Point(x + w, y + h), Scalar(0, 0, 255), 1);
             locations.push_back(Point(x, y));
             //xx.push_back(x);

@@ -12,7 +12,7 @@
 void servo(int num) {
   
   PiPCA9685::PCA9685 pca{};
-  pca.set_pwm_freq(50.0);
+  pca.set_pwm_freq(50.0); 
   
   pca.set_pwm(num, 0, 370);
   // usleep(1'000'000);

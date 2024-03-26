@@ -7,13 +7,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-// struct clsscan_config {
-//     std::vector<int> valid_idx;
-//     std::vector<int> columns;
-//     std::vector<int> rows;
-//     std::vector<std::pair<int, int>> reference_points;
-// };
-// typedef struct clsscan_config clsscan_config;
+
 void from_json(const json &j, clsscan_config &config) {
     config.valid_idx.push_back(0);
     config.valid_idx.push_back(0);
@@ -69,12 +63,4 @@ void to_json(json &j, const clsscan_config &config) {
 }
 
 
-// int main(){
-//     ifstream f("config.json");
-//     json config = json::parse(f);
-//     clsscan_config conf;
-//     conf=config;
-//     int a = conf.columns[1];
-//     cout<<a<<endl;
-//     return 0;
-// }
+

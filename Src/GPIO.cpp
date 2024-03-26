@@ -10,7 +10,7 @@ int GPIOmotor() {
     bcm2835_gpio_fsel(PIN2, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN3, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN4, BCM2835_GPIO_FSEL_OUTP);
-    while (1) {
+    // while (1) {
         bcm2835_gpio_write(PIN1, HIGH);
         bcm2835_gpio_write(PIN2, HIGH);
         bcm2835_gpio_write(PIN3, HIGH);
@@ -18,8 +18,8 @@ int GPIOmotor() {
         // bcm2835_delay(500);
         // bcm2835_gpio_write(PIN,LOW);
         // bcm2835_delay(500);
-    }
-    bcm2835_close();
+    // }
+    // bcm2835_close();
     // return 0;
 }
 

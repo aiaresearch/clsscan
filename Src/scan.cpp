@@ -31,7 +31,7 @@ void init() {
         fprintf(stderr, "Error: Sane_init %s\n", sane_strstatus(status));
         return;
     }
-    printf("SANE version code: %d\n", version_code);
+    // printf("SANE version code: %d\n", version_code);
 }
 
 void init_device() {
@@ -40,7 +40,7 @@ void init_device() {
         fprintf(stderr, "Error: Open device %s\n", sane_strstatus(status));
         return;
     }
-    printf("Device opened successfully\n");
+    // printf("Device opened successfully\n");
 
     // Get parameters
     status = sane_get_parameters(handle, &parameters);
@@ -48,14 +48,14 @@ void init_device() {
         fprintf(stderr, "Error: Get parameters %s\n", sane_strstatus(status));
         return;
     }
-    printf("Parameters retrieved\n");
-    printf("Format: %d\n", parameters.format);
-    printf("Last frame: %d\n", parameters.last_frame);
-    printf("Bytes per line: %d\n", parameters.bytes_per_line);
-    printf("Pixels per line: %d\n", parameters.pixels_per_line);
-    printf("Lines: %d\n", parameters.lines);
-    printf("Depth: %d\n", parameters.depth);
-    printf("Total bytes: %d\n", parameters.bytes_per_line * parameters.lines);
+    // printf("Parameters retrieved\n");
+    // printf("Format: %d\n", parameters.format);
+    // printf("Last frame: %d\n", parameters.last_frame);
+    // printf("Bytes per line: %d\n", parameters.bytes_per_line);
+    // printf("Pixels per line: %d\n", parameters.pixels_per_line);
+    // printf("Lines: %d\n", parameters.lines);
+    // printf("Depth: %d\n", parameters.depth);
+    // printf("Total bytes: %d\n", parameters.bytes_per_line * parameters.lines);
 
     // Set source to ADF Front
     option = sane_get_option_descriptor(handle, SOURCE_OPT);
@@ -63,37 +63,37 @@ void init_device() {
         fprintf(stderr, "Error: Get option descriptor\n");
         return;
     }
-    printf("Option descriptor retrieved\n");
-    printf("Option name: %s\n", option->name);
-    printf("Option title: %s\n", option->title);
-    printf("Option type: %d\n", option->type);
+    // printf("Option descriptor retrieved\n");
+    // printf("Option name: %s\n", option->name);
+    // printf("Option title: %s\n", option->title);
+    // printf("Option type: %d\n", option->type);
 
     sane_control_option(handle, SOURCE_OPT, SANE_ACTION_SET_VALUE, (void *) source_str, NULL);
 }
 
 cv::Mat scan() {
-	printf("Staring the scanning process\n");
+	// printf("Staring the scanning process\n");
     status = sane_start(handle);
-    printf("ret=%d\n", status);
+    // printf("ret=%d\n", status);
     if (status != SANE_STATUS_GOOD) {
         fprintf(stderr, "Error: Scan: %s\n", sane_strstatus(status));
         return cv::Mat();
     }
-    printf("Scanning started\n");
+    // printf("Scanning started\n");
 
     double progr;
     SANE_Int total_bytes = 0;
     SANE_Int max_length = parameters.bytes_per_line * parameters.lines;
     buffer = (SANE_Byte *) malloc(max_length);
-    printf("Buffer allocated, max_length=%d\n", max_length);
+    // printf("Buffer allocated, max_length=%d\n", max_length);
 
     while (true) {
-	    printf("Waiting for data\n");
+	    // printf("Waiting for data\n");
         status = sane_read(handle, buffer + total_bytes, max_length, &bytes_read);
         total_bytes += bytes_read;
         progr = ((total_bytes * 100.) / (double) max_length);
         if (progr > 100.) progr = 100.;
-        printf("Progress: %.2f%%\n", progr);
+        // printf("Progress: %.2f%%\n", progr);
         if (status == SANE_STATUS_EOF || !bytes_read)
             break;
         if (status != SANE_STATUS_GOOD) {
@@ -101,8 +101,8 @@ cv::Mat scan() {
             return cv::Mat();
         }
     }
-    printf("Scanning finished\n");
-    printf("Bytes read: %d\n", bytes_read);
+    // printf("Scanning finished\n");
+    // printf("Bytes read: %d\n", bytes_read);
 
     cv::Mat image(parameters.lines, parameters.pixels_per_line, CV_8UC1);
     // Iterate over each line of the image buffer
@@ -119,11 +119,8 @@ cv::Mat scan() {
         }
     }
 
-    printf("Image created\n, rows=%d, cols=%d", image.rows, image.cols);
-    printf("Image mean intensity: %f\n", cv::mean(image)[0]);
-    cv::imshow("Scanned Image", image);
-    cv::waitKey(0); // Wait for a key press to close the window
-    cv::destroyAllWindows();
+    // printf("Image created\n, rows=%d, cols=%d", image.rows, image.cols);
+    // printf("Image mean intensity: %f\n", cv::mean(image)[0]);
     //cv::imwrite("test.png", image);
     return image;
 }

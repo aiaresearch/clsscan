@@ -11,6 +11,7 @@ using namespace cv;
 
 cv::Mat img_preprocess(const cv::Mat& image) {
     // Process the input image
+    cout<<"enter"<<endl;
     cv::Mat processedImage;
     cv::cvtColor(image, processedImage, cv::COLOR_BGR2GRAY);
     pyrDown(image, processedImage);
@@ -27,8 +28,8 @@ vector<cv::Point2f> find_mark_points(const cv::Mat& img) {
     // Process the image
     Mat kernel = cv::getStructuringElement(MORPH_RECT, Size(3, 3));
     Mat img_open;
-    cv::dilate(img, img_open, kernel, Point(-1, -1), 3);
-    cv::erode(img_open, img_open, kernel, Point(-1, -1), 3);
+    cv::dilate(img, img_open, kernel, Point(-1, -1),6);
+    cv::erode(img_open, img_open, kernel, Point(-1 , -1), 6);
     pyrDown(img_open, img_open);
     // Find contours
     vector<vector<Point>> contours;
@@ -42,22 +43,23 @@ vector<cv::Point2f> find_mark_points(const cv::Mat& img) {
         int w = boundingBox.width;
         int h = boundingBox.height;
         // Check if the bounding box satisfies the criteria
-        if (w > h && w < 150 && h < 150) {
+        if (w > h && w>10 && w < 150 && h < 150) {
             markPoints.push_back(boundingBox.tl()); // Add top-left corner of the bounding box
-        }
+            cv::rectangle(img_open,boundingBox.tl(),boundingBox.tl()+Point(w,h),(0,0,0),6);
+            }
+        
     }
 
     return markPoints;
 }
 
-vector<cv::Point2f> transform_points(const std::vector<cv::Point2f>& locations, int im_w, int im_h, const clsscan_config& config) {
+vector<cv::Point2f> transform_points(const std::vector<cv::Point2f>& locations, int im_w, int im_h, const clsscan_config& config,Mat img) {
 
     // Calculate the corners of the image
     cv::Point2f corners[3] = {
             cv::Point2f(0, 0), // Top-left
             cv::Point2f(0, im_h), // Bottom-left
             cv::Point2f(im_w, im_h), // Bottom-right
-//            cv::Point2f(im_w, 0)  // Top-right
     };
 
     // Find the nearest point to the corners
@@ -82,25 +84,17 @@ vector<cv::Point2f> transform_points(const std::vector<cv::Point2f>& locations, 
             cv::Point2f(config.reference_points[1].first, config.reference_points[1].second), // Left-down
             cv::Point2f(config.reference_points[2].first, config.reference_points[2].second), // Right-down
     };
-//    dst.push_back(dst[0] + dst[2] - dst[1]); // Right-up
 
-    // Calculate the perspective transform matrix
-//    Mat m = cv::getPerspectiveTransform(src, dst);
+    // Calculate the affine transform matrix
     Mat m = cv::getAffineTransform(src, dst);
 
     // Transform the locations
     vector<cv::Point2f> result;
-//    cv::Mat points(3, locations.size(), CV_32FC1);
-//    for (int i = 0; i < locations.size(); ++i) {
-//        points.at<float>(0, i) = (float)locations[i].x;
-//        points.at<float>(1, i) = (float)locations[i].y;
-//        points.at<float>(2, i) = 1;
-//    }
-//    cout << points.size << endl;
-//    cout << m.size << endl;
+
+    Mat img_new ;
     cv::transform(locations, result, m);
-//    for (int i = 0; i < locations.size(); ++i)
-//        result.push_back(cv::Point(points.at<float>(0, i), points.at<float>(1, i)));
+    cv::warpAffine(img, img_new, m, img.size());
+    cv::imwrite("img_new.jpg",img_new);kk  
 
     return result;
 }
