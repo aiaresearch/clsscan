@@ -94,7 +94,7 @@ vector<cv::Point2f> transform_points(const std::vector<cv::Point2f>& locations, 
     Mat img_new ;
     cv::transform(locations, result, m);
     cv::warpAffine(img, img_new, m, img.size());
-    cv::imwrite("img_new.jpg",img_new);kk  
+    cv::imwrite("img_new.jpg",img_new);
 
     return result;
 }

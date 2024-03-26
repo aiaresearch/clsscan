@@ -1,68 +1,59 @@
 #include "main.h"
 #include "scan.h"
 #include "recognize.h"
-#include "servo.h"
-#include "GPIO.h"
+#include "serial.h"
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
-#include <thread>
-#include <chrono>
 
 using json = nlohmann::json;
 using namespace std;
 using namespace cv;
 
-
 Mat img;
+int class_number;
 
 int main() {
+    // Init scanner
     init();
     init_device();
+
     // Load the configuration file
     ifstream f("config.json");
     clsscan_config conf = json::parse(f);
     cout << "Config loaded" << endl;
-    //GPIOmotor();
-    cout << "GPIO inited" << endl;
-    for(int i=0;i<20;i++){
-	    cout << "Scanning " << i << " image..." << endl;
+
+    // Init serial
+
+    // Main loop
+    for(int i = 0; i < 5; i++){
+	    cout << "Scanning " << i << " image...  ";
         //Load the image
         img = scan();    
-        imwrite("img.jpg",img);
+
         //img = cv::imread("img/test.png");
-        
         //img = img_preprocess(img);
 
-        // Find the mark points
-        
-        vector<Point2f> mark_points = find_mark_points(img);
-        //cv::imshow("show", img);
-
-        // cv::waitKey(0);
-
-        // Transform the points
-        vector<Point2f> transformed_points = transform_points(mark_points, img.cols, img.rows, conf, img);
-        // for (int i = 0; i<transformed_points.size(); i++)
-        //     cout << transform_points[i] << endl;
-
         // Extract the class number
-        int class_number = extract_class_id(transformed_points, conf);
+        vector<Point2f> mark_points = find_mark_points(img);
+        vector<Point2f> transformed_points = transform_points(mark_points, img.cols, img.rows, conf, img);
+
+        class_number = extract_class_id(transformed_points, conf);
         cout << "Class number: " << class_number << endl;
 
-        // vector<int> option_numbers={3,4,5,21};
-        // // Control servo
-        // for(int i=0;i<4;i++){
-        //     if (class_number == option_numbers[i]) {
-        //         std::thread t(servo, i);
-        //         t.detach();
-        //     }
-        // }
+        if (class_num>=1 && class_num<=26){
+            if (class_num>4) class_num = 4;
+            cout << "Switching servo: " << class_number << endl;
+            // Send the class number to the serial
+            //send_serial(class_number);
+        }
+        else{
+            cout << "Invalid class number" << endl;
+        }
     }
-    //GPIOmotoroff();
     
     release();
     return 0;
